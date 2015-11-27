@@ -32,11 +32,16 @@ def santa():
         real_name = request.form.get('name')
         password = request.form.get('password')
 	try:
+	    check_query = "select name from secret_santa where name='%s'" % real_name
+            check_results = query_db(check_query)
+	    print check_results
+            if check_results:
+                return "Nice try slick...you already registered! Return back <a href='/'>Home</a>"
             g.db.execute('insert into secret_santa (name, password, match) values (?, ?, NULL)', [real_name, password])
 	    g.db.commit()
 	except Exception as e:
             return "There was a problem with your submission!<br><br>%s" % e
-	return "Your submission has been recorded! Return back <a href="/">Home</a>"
+	return "Your submission has been recorded! Return back <a href='/'>Home</a>"
     return render_template('santa.html', error=error)
 
 @app.route('/randomizer', methods=['POST', 'GET'])
@@ -73,7 +78,7 @@ def randomizer():
 			    break
                         else:
                             print "selection still not random; recycling."
-                print "All users have been matched! <a href="/randomizer">Re-run</a> or Return back <a href="/">Home</a>"
+                print "All users have been matched! <a href='/randomizer'>Re-run</a> or Return back <a href='/'>Home</a>"
 		user_matching_status = True
             except Exception as e:
                 return "Error getting userlist"
@@ -106,11 +111,11 @@ def status():
 	        match_query = 'select name from secret_santa where id=%d' % int(user_data[0][0])
                 match_data = query_db(match_query)
 	    else:
-	        return "Match not yet available! Check back soon! Return back <a href="/">Home</a>"
+	        return "Match not yet available! Check back soon! Return back <a href='/'>Home</a>"
         except Exception as e:
-            return "There was an error trying to find your match! Return back <a href="/">Home</a>"
+            return "There was an error trying to find your match! Return back <a href='/'>Home</a>"
         print match_data
-	return 'You got: %s! The limit that has been set has been: %s!<br><br>Check again whenever, or remember it well! Return back <a href="/">Home</a>' % (match_data[0][0], MAX_GIFT_LIMIT)
+	return 'You got: %s! The limit that has been set has been: %s!<br><br>Check again whenever, or remember it well! Return back <a href='/'>Home</a>' % (match_data[0][0], MAX_GIFT_LIMIT)
     return render_template('status.html', error=error)
 
 @app.route('/')
