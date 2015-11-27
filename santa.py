@@ -64,6 +64,11 @@ def randomizer():
                     while True:
                         random_match = random.choice(user_list)
 			if random_match != each_user[0]:
+			    query = "UPDATE secret_santa SET match=%d WHERE name='%s' AND id=%d" % (int(random_match), each_user[1], int(each_user[0]))
+			    print query
+			    g.db.execute(query)
+			    g.db.commit()
+			    print "Found a match for: %s" % each_user[1]
 		            user_list.remove(random_match)
 			    break
                         else:
