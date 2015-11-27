@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, g
 import sqlite3
+import random
 app = Flask(__name__)
 
 MAX_GIFT_LIMIT = "$50.00 USD"
@@ -43,8 +44,38 @@ def randomizer():
     error = None
     if request.method == 'POST':
         password = request.form.get('password')
+	user_query = 'SELECT id, name from secret_santa'
 	if password == SECRET_PASS:
-            return "You got the password! Stuff should be randomized now!"
+	    user_list = []
+	    user_matching_status = False
+	    try:
+	        user_table_list = query_db(user_query)
+		# Create a list of user_ids
+	        for each_user in user_table_list:
+                    unique_user_id = each_user[0]
+                    user_list.append(unique_user_id)
+
+                print user_list
+
+                # randomly assign person to user so long
+		# as the user isn't themselves. Also,
+		# remove the user so there's no duplicate
+		for each_user in user_table_list:
+                    while True:
+                        random_match = random.choice(user_list)
+			if random_match != each_user[0]:
+		            user_list.remove(random_match)
+			    break
+                        else:
+                            print "selection still not random; recycling."
+                print "All users have been matched!"
+		user_matching_status = True
+            except Exception as e:
+                return "Error getting userlist"
+	    if user_matching_status:
+                return "Stuff should be randomized now!"
+	    else:
+                return "Something went wrong matching. Sorry!"
         else:
             return "Nice try..."
     return render_template('randomizer.html', error=error)
