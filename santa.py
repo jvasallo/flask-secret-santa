@@ -1,13 +1,16 @@
+#!/usr/bin/python
 from flask import Flask, render_template, request, g
+import os
 import sqlite3
 import random
 app = Flask(__name__)
 
 MAX_GIFT_LIMIT = "$50.00 USD"
 SECRET_PASS = 'turkeysanta'
-DATABASE = 'santa.db'
+DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'santa.db')
 
 def connect_to_database():
+    print DATABASE
     return sqlite3.connect(DATABASE)
 
 @app.before_request
@@ -115,7 +118,7 @@ def status():
         except Exception as e:
             return "There was an error trying to find your match! Return back <a href='/'>Home</a>"
         print match_data
-	return 'You got: %s! The limit that has been set has been: %s!<br><br>Check again whenever, or remember it well! Return back <a href='/'>Home</a>' % (match_data[0][0], MAX_GIFT_LIMIT)
+	return "You got: %s! The limit that has been set has been: %s!<br><br>Check again whenever, or remember it well! Return back <a href='/'>Home</a>" % (match_data[0][0], MAX_GIFT_LIMIT)
     return render_template('status.html', error=error)
 
 @app.route('/')
@@ -126,11 +129,6 @@ if __name__ == '__main__':
     # Enable Debug mode
     app.debug = True
     app.run()
-@app.route('/')
-def welcome_page():
-    return render_template('index.html')
 
-if __name__ == '__main__':
-    # Enable Debug mode
-    app.debug = True
-    app.run()
+    # PROD Mode
+    #app.run(host='0.0.0.0', port=80)
